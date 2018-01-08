@@ -1,0 +1,193 @@
+#include<stdlib.h>
+#include<stdio.h>
+#include<string.h>
+#include <ctype.h>
+
+
+
+void main(int argc, char *argv[]){
+
+ // arrives as inventory=gold,mana (gold and mana are numbers)
+int player = 1 ;
+int room_gold=10;
+int room_mana=10;
+char p_gold[10];
+char p_mana[10];
+int player_mana,player_gold;
+char room_resources[50];
+char command[200];   // arrives as command=EXAMPLE ( if two word command spaces are + -> *drop n) 
+
+int n = atoi(getenv("CONTENT_LENGTH"));
+char array[n+1];
+fgets(array,n+1,stdin);    // gets the content pass by submit and puts it in array
+//decode
+for(int k=0; k<n;k++){
+	if(array[k]=='%' &&array[k+1]=='2' && array[k+2] == 'C'){
+	array[k] = ',';
+	int temp =k;
+	k++;
+	for(;k<n-2;k++){
+	array[k]=array[k+2];
+	} 
+	k=temp;
+	}
+
+}
+
+int i=0;
+for(;i<n && !(array[i-2] == 'y' && array[i-1] =='=');i++);  // getting the gold,mana and command 
+int j =0 ;
+	for(;j<n && array[i] != ','; i++,j++){
+	p_mana[j]=array[i];
+	}
+
+p_mana[i]= '\0';
+player_mana= atoi(p_mana);
+j =0 ;
+i++;
+
+	for(;j<n && array[i] != '&'; i++,j++){
+	p_gold[j]=array[i];
+	}
+	
+	
+p_gold[j] = '\0';
+player_gold= atoi(p_gold);
+j =0 ;
+
+for(;i<n && array[i] != '=';i++);
+i++;
+	for(;j<n && array[i] != '&'; i++,j++){     //should stop at the end of the submitted input from content lenght given
+	if (array[i] != '+') command[j]=array[i];
+		else command[j]=' ';
+	}
+command[j] = '\0';
+
+
+if(player_mana==0){
+		printf("Content-type: text/html\n\n");
+		printf("<html>");
+		printf("<body>");
+		printf("<h1>GAME OVER</h1>");
+		printf("<center><img src=\"https://www.cs.mcgill.ca/~dgilbe9/images/youdied.gif\" </center>");
+		printf("</body>");
+		printf("</html>");
+}
+else if(player_gold >= 100){
+     printf("Content-type: text/html\n\n");
+                printf("<html>");
+                printf("<body>");
+                printf("<h1>WE HAVE A </h1>");
+                printf("<center><img src=\"https://img.clipartfest.com/904899ac49790c35186bb5239d812b18_free-winner-now-animated-ultimate-winners-clipart_640-480.gif\" </center>");
+                printf("<h2>THANK YOU FOR PLAYING</h2><h3>use your new found wealth to seize all means of production</h3>");
+		printf("</body>");
+                printf("</html>");
+}
+
+
+FILE *resources_read = fopen("resources.csv", "r");  //gets the resources of the room
+	if(resources_read==NULL){
+	printf("Content-type: text/html\n\n");
+	printf("<html><body> resources.csv wasnt found</body></html>");
+	}
+	
+	int t =fscanf(resources_read,"%d,%d,%d", &room_mana, &room_gold, &player); //scan and format the value
+	if(t != 3){
+	printf("Content-type: text/html\n\n");
+	printf("<html><body> not 3 thing scaned from resources</body></html>");
+	}
+	fclose(resources_read);
+	if(player == 0){
+	player=1;
+	FILE *resources_update = fopen("resources.csv", "w"); // set player value to 1
+			fprintf(resources_update, "%d,%d,%d",room_mana, room_gold, player );
+
+			fclose(resources_update);
+	}
+
+
+if(strcmp(command,"PLAY") == 0){
+printf("Content-type: text/html\n\n");
+printf("<html><head><title>Black Jack Testing</title></head><body><form name= testInput action=blackjack.cgi method=\"get\">The Number of Cards you want: <input type=\"text\" name=\"num\"><input type=\"submit\" value=\"enter\"></form></body></html>");
+
+// game program ****
+}
+else if(strstr(command, "DROP") != NULL){
+
+char arrayn[10];
+int i =0;
+int pay;
+
+
+while(command[i] != '\0'){
+	arrayn[i] = command[i+5];
+	i++;
+}
+
+pay=atoi(arrayn);
+
+int amana = pay/2;
+if(pay > player_gold){
+printf("Content-type: text/html\n\n");
+printf("<html><head><title> Three-eyed Raven </title></head><style>h1 { text-align: center;}h2 { text-align: left;}h3 {  text-align: right;}body { background-image: url(\"https://images2.alphacoders.com/201/thumb-1920-201750.jpg\");color: white;}cl1 { color: firebrick; font-size: 10pt;}</style><h1>you aint got that much gold pal<br>for game instructions, <a href=\"https://www.pagat.com/banking/blackjack.html \">clickme!!</a></h1><br><h2><h1><form action=\"room.cgi\" method=\"post\" ><input type=\"hidden\" name=\"inventory\" value=\"%d,%d\"><input type = \"text\" name = \"command\" ><input type = \"submit\" name=\"submit\"></form><h2>MANA : %d GOLD: %d </h2></h1><br><br><center><cl1><h1>Underage or broke? Bye!!</h1></cl1><p><form action=\"/~schen112/cgi-bin/transporter.py\" method=\"post\" style=\"display:inline;\"><input type = \"hidden\" name = \"inventory\" value= \"%d,%d\"  ><input type = \"hidden\" name = \"URL\" value = \"http://www.cs.mcgill.ca/~schen112/cgi-bin/room.cgi\"><input type = \"submit\" value = \"North\"></form><form action=\"http://www.cs.mcgill.ca/~tspark1/cgi-bin/transporter.py\" method=\"post\" style=\"display:inline;\"><input type = \"hidden\" name = \"inventory\"  value= \"%d,%d\" ><input type = \"hidden\" name = \"URL\" value = \"http://www.cs.mcgill.ca/~schen112/cgi-bin/room.cgi\"><input type = \"submit\" value = \"East\"></form><form action=\"http://cgi.cs.mcgill.ca/~hnguye124/cgi-bin/transporter.py\" method=\"post\" style=\"display:inline;\"<input type = \"hidden\" name = \"inventory\"  value= \"%d,%d\" ><input type = \"hidden\" name = \"URL\" value = \"http://www.cs.mcgill.ca/~schen112/cgi-bin/room.cgi\"><input type = \"submit\" value = \"West\"></form><form action=\"http://www.cs.mcgill.ca/rhughe14/transporter.py\" method=\"post\" style=\"display:inline;\"><input type = \"hidden\" name = \"inventory\"  value= \"%d,%d\" ><input type = \"hidden\" name = \"URL\" value = \"http://www.cs.mcgill.ca/~schen112/cgi-bin/room.cgi\"><input type = \"submit\" value = \"South\"></form></center></p></body></html>",player_mana,player_gold,player_mana,player_gold,player_mana,player_gold,player_mana,player_gold,player_mana,player_gold,player_mana,player_gold);
+
+
+}
+else{
+player_gold -= pay;
+player_mana += amana;
+room_gold += pay;
+FILE *resources_update = fopen("resources.csv", "w"); // open file with ressources separated by commas to update new value
+                        fprintf(resources_update, "%d,%d,%d",room_mana, room_gold, player );
+                        fclose(resources_update);
+
+printf("Content-type: text/html\n\n");
+printf("<html><head><title> Three-eyed Raven </title></head><style>h1 { text-align: center;}h2 { text-align: left;}h3 {  text-align: right;}body { background-image: url(\"https://images2.alphacoders.com/201/thumb-1920-201750.jpg\");color: white;}cl1 { color: firebrick; font-size: 10pt;}</style><h1>Welcome and try to have fun with BlackJack<br>for game instructions, <a href=\"https://www.pagat.com/banking/blackjack.html \">clickme!!</a></h1><br><h2><h1><form action=\"room.cgi\" method=\"post\" ><input type=\"hidden\" name=\"inventory\" value=\"%d,%d\"><input type = \"text\" name = \"command\" ><input type = \"submit\" name=\"submit\"></form><h2>MANA : %d GOLD: %d </h2></h1><br><br><center><cl1><h1>Underage or broke? Bye!!</h1></cl1><p><form action=\"/~schen112/cgi-bin/transporter.py\" method=\"post\" style=\"display:inline;\"><input type = \"hidden\" name = \"inventory\" value= \"%d,%d\"  ><input type = \"hidden\" name = \"URL\" value = \"http://www.cs.mcgill.ca/~schen112/cgi-bin/room.cgi\"><input type = \"submit\" value = \"North\"></form><form action=\"http://www.cs.mcgill.ca/~tspark1/cgi-bin/transporter.py\" method=\"post\" style=\"display:inline;\"><input type = \"hidden\" name = \"inventory\"  value= \"%d,%d\" ><input type = \"hidden\" name = \"URL\" value = \"http://www.cs.mcgill.ca/~schen112/cgi-bin/room.cgi\"><input type = \"submit\" value = \"East\"></form><form action=\"http://cgi.cs.mcgill.ca/~hnguye124/cgi-bin/transporter.py\" method=\"post\" style=\"display:inline;\"<input type = \"hidden\" name = \"inventory\"  value= \"%d,%d\" ><input type = \"hidden\" name = \"URL\" value = \"http://www.cs.mcgill.ca/~schen112/cgi-bin/room.cgi\"><input type = \"submit\" value = \"West\"></form><form action=\"http://www.cs.mcgill.ca/rhughe14/transporter.py\" method=\"post\" style=\"display:inline;\"><input type = \"hidden\" name = \"inventory\"  value= \"%d,%d\" ><input type = \"hidden\" name = \"URL\" value = \"http://www.cs.mcgill.ca/~schen112/cgi-bin/room.cgi\"><input type = \"submit\" value = \"South\"></form></center></p></body></html>",player_mana,player_gold,player_mana,player_gold,player_mana,player_gold,player_mana,player_gold,player_mana,player_gold,player_mana,player_gold);
+}
+}
+
+else if(strcmp(command,"EXIT") == 0){
+ //  if COMMAND is EXIT adds player things to the room
+			room_mana = room_mana + player_mana;
+			room_gold = room_gold + player_gold;
+			player = 0;  //no player in room
+			
+			FILE *resources_update = fopen("resources.csv", "w"); // open file with ressources separated by commas to update new value
+			fprintf(resources_update, "%d,%d,%d",room_mana, room_gold, player );
+
+			fclose(resources_update);
+			
+			printf("Content-type: text/html\n\n");
+			printf("<html>");
+			printf("<center>sorry to see you leave </center>");
+			printf("<body>");
+			printf("<center><h1>See ya please don't come back we have enough money already </h1></center>");
+			printf("<center><img src=\"https://www.cs.mcgill.ca/~dgilbe9/images/goodbye.jpg\" alt=\"Goodbye\"></center>");
+			printf("</body>");
+			printf("</html>");
+	
+}
+else if(strcmp(command,"REFRESH") == 0){
+
+ if(player == 0){
+        player=1;
+        FILE *resources_update = fopen("resources.csv", "w"); // set player value to 1
+                        fprintf(resources_update, "%d,%d,%d",room_mana, room_gold, player );
+
+                        fclose(resources_update);
+        }
+
+
+
+printf("Content-type: text/html\n\n");
+printf("<html><head><title> Three-eyed Raven </title></head><style>h1 { text-align: center;}h2 { text-align: left;}h3 {  text-align: right;}body { background-image: url(\"https://images2.alphacoders.com/201/thumb-1920-201750.jpg\");color: white;}cl1 { color: firebrick; font-size: 10pt;}</style><h1>Welcome and try to have fun with BlackJack<br>for game instructions, <a href=\"https://www.pagat.com/banking/blackjack.html \">clickme!!</a></h1><br><h2><h1><form action=\"room.cgi\" method=\"post\" ><input type=\"hidden\" name=\"inventory\" value=\"%d,%d\"><input type = \"text\" name = \"command\" ><input type = \"submit\" name=\"submit\"></form><h2>MANA : %d GOLD: %d </h2></h1><br><br><center><cl1><h1>Underage or broke? Bye!!</h1></cl1><p><form action=\"/~schen112/cgi-bin/transporter.py\" method=\"post\" style=\"display:inline;\"><input type = \"hidden\" name = \"inventory\" value= \"%d,%d\"  ><input type = \"hidden\" name = \"URL\" value = \"http://www.cs.mcgill.ca/~schen112/cgi-bin/room.cgi\"><input type = \"submit\" value = \"North\"></form><form action=\"http://www.cs.mcgill.ca/~tspark1/cgi-bin/transporter.py\" method=\"post\" style=\"display:inline;\"><input type = \"hidden\" name = \"inventory\"  value= \"%d,%d\" ><input type = \"hidden\" name = \"URL\" value = \"http://www.cs.mcgill.ca/~schen112/cgi-bin/room.cgi\"><input type = \"submit\" value = \"East\"></form><form action=\"http://cgi.cs.mcgill.ca/~hnguye124/cgi-bin/transporter.py\" method=\"post\" style=\"display:inline;\"<input type = \"hidden\" name = \"inventory\"  value= \"%d,%d\" ><input type = \"hidden\" name = \"URL\" value = \"http://www.cs.mcgill.ca/~schen112/cgi-bin/room.cgi\"><input type = \"submit\" value = \"West\"></form><form action=\"http://www.cs.mcgill.ca/rhughe14/transporter.py\" method=\"post\" style=\"display:inline;\"><input type = \"hidden\" name = \"inventory\"  value= \"%d,%d\" ><input type = \"hidden\" name = \"URL\" value = \"http://www.cs.mcgill.ca/~schen112/cgi-bin/room.cgi\"><input type = \"submit\" value = \"South\"></form></center></p></body></html>",player_mana,player_gold,player_mana,player_gold,player_mana,player_gold,player_mana,player_gold,player_mana,player_gold,player_mana,player_gold);
+}
+else{
+printf("Content-type: text/html\n\n");
+printf("<html><head><title> Three-eyed Raven </title></head><style>h1 { text-align: center;}h2 { text-align: left;}h3 {  text-align: right;}body { background-image: url(\"https://images2.alphacoders.com/201/thumb-1920-201750.jpg\");color: white;}cl1 { color: firebrick; font-size: 10pt;}</style><h1>Welcome and try to have fun with BlackJack<br>for game instructions, <a href=\"https://www.pagat.com/banking/blackjack.html \">clickme!!</a></h1><br><h2>command:%s <h1><form action=\"room.cgi\" method=\"post\" ><input type=\"hidden\" name=\"inventory\" value=\"%d,%d\"><input type = \"text\" name = \"command\" ><input type = \"submit\" name=\"submit\"></form><h2> MANA:%d GOLD:%d</h2></h1><br><br><center><cl1><h1>write a valid command , all Caps please ?</h1></cl1><p><form action=\"/~schen112/cgi-bin/transporter.py\" method=\"post\" style=\"display:inline;\"><input type = \"hidden\" name = \"inventory\" value= \"%d,%d\"  ><input type = \"hidden\" name = \"URL\" value = \"http://www.cs.mcgill.ca/~schen112/cgi-bin/room.cgi\"><input type = \"submit\" value = \"North\"></form><form action=\"http://www.cs.mcgill.ca/~tspark1/cgi-bin/transporter.py\" method=\"post\" style=\"display:inline;\"><input type = \"hidden\" name = \"inventory\"  value= \"%d,%d\" ><input type = \"hidden\" name = \"URL\" value = \"http://www.cs.mcgill.ca/~schen112/cgi-bin/room.cgi\"><input type = \"submit\" value = \"East\"></form><form action=\"http://cgi.cs.mcgill.ca/~hnguye124/cgi-bin/transporter.py\" method=\"post\" style=\"display:inline;\"<input type = \"hidden\" name = \"inventory\"  value= \"%d,%d\" ><input type = \"hidden\" name = \"URL\" value = \"http://www.cs.mcgill.ca/~schen112/cgi-bin/room.cgi\"><input type = \"submit\" value = \"West\"></form><form action=\"http://www.cs.mcgill.ca/rhughe14/transporter.py\" method=\"post\" style=\"display:inline;\"><input type = \"hidden\" name = \"inventory\"  value= \"%d,%d\" ><input type = \"hidden\" name = \"URL\" value = \"http://www.cs.mcgill.ca/~schen112/cgi-bin/room.cgi\"><input type = \"submit\" value = \"South\"></form></center></p></body></html>",command, player_mana,player_gold,player_mana,player_gold,player_mana,player_gold,player_mana,player_gold,player_mana,player_gold,player_mana,player_gold);
+
+}
+
+}
+
+// if needed command:%s  query :  %s   n:  %d mana:%d gold: %d 

@@ -1,0 +1,21 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main(void)
+{
+FILE *f = fopen("data.txt","r");
+int ch;
+printf("Content-Type:text/html\n\n");
+printf("<html>");
+if (f==NULL)
+{
+printf("<head><title>ERROR</title></head>");
+printf("<body><p>Unable to open file!</p></body>");
+}
+else
+{
+while((ch=fgetc(f)) != EOF) putchar(ch);
+fclose(f);
+}
+printf("</html>");
+return 0;
