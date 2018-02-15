@@ -1,0 +1,43 @@
+
+
+/*Their tag. This will select all “<p>”s*/
+p{
+	font-family:"Helvetica";
+	color: red;
+}
+
+body{
+	background-color: #310b3d;
+	color: #a210b2; 
+}
+
+a{
+	color: rgba(255,255,255,8.0);
+}
+
+/*for some class circle for img*/
+img.circle
+{
+	 border-radius: 69%;
+}
+
+/*div are arranged with id => <div id="thisID">*/
+#thisID{
+	width: 50%;
+	height: 500px;
+	color: rgba(255,0,0,0.5);
+
+	border: 1px solid #F32134; /* size, pattern, color */
+	border-radius: 4px; /* rounded rectangles! */
+
+	margin: 0;
+	margin: 5 5 10 0; /* up, right, bottom, left. Like a clock! */
+	margin-top: 10em;
+
+	padding: 0;
+	padding: 5 5 10 0; /* up, right, bottom, left. Like a clock! */
+	padding-top: 10em;
+
+	
+}
+
