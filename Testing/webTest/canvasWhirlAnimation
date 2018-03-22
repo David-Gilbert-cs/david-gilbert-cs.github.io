@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="utf-8">
+    <title>some canvas</title>
+    
+<style>
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0px;
+      border: 20;
+      overflow: hidden; /*  Disable scrollbars */
+      display: block;  /* No floating content on sides */
+    }
+    </style>
+
+</head>
+
+<body>
+    <canvas id='c' style='position:absolute; left:0px; top:0px;border:30px solid #3f008c;'>
+    </canvas>
+
+    <script>
+    var delta =0 ;
+    var deltaRadius=0;
+    var timer =0;
+    var id = setInterval(frame, 30);
+    
+   
+
+function frame() {
+	timer += 1;
+    context.clearRect(0, 0,  htmlCanvas.width,  htmlCanvas.height);
+  
+    if(timer%htmlCanvas.width/2 < htmlCanvas.width/4){
+	deltaRadius += 1 ;
+  	}
+    else{
+    deltaRadius -= 1.1 ;
+    }
+    
+	redraw();
+  
+   //clearInterval(id);
+}
+    
+ 
+   
+   
+        // Obtain a reference to the canvas element using its id.
+       var htmlCanvas = document.getElementById('c');
+        // Obtain a graphics context on the canvas element for drawing.
+       var context = htmlCanvas.getContext('2d');
+
+       // Start listening to resize events and draw canvas.
+       initialize();
+
+       function initialize() {
+           // Register an event listener to call the resizeCanvas() function 
+           // each time the window is resized.
+           window.addEventListener('resize', resizeCanvas, false);
+           // Draw canvas border for the first time.
+           resizeCanvas();
+           
+           
+           
+           
+        }
+
+
+        // Runs each time the DOM window resize event fires.
+        // Resets the canvas dimensions to match window,
+        // then draws the new borders accordingly.
+        function resizeCanvas() {
+            htmlCanvas.width = window.innerWidth;
+            htmlCanvas.height = window.innerHeight;
+            redraw();
+        }
+          // Display custom canvas. In this case it's a blue, 5 pixel 
+        // border that resizes along with the browser window.
+        function redraw() {
+           delta +=0.01;
+           context.lineWidth = '5';
+           
+           context.strokeStyle = "rgba(255,60,230,1)" ;
+         
+           
+           // arcs and cercles
+           var i;
+           for (i = 0; i < 60; i++){
+           context.beginPath();
+           context.arc(window.innerWidth/2+200*Math.cos(delta),window.innerHeight/2+200*Math.sin(delta),deltaRadius+window.innerHeight/2-15*i,
+           0,2*Math.PI,false);
+           context.strokeStyle = 'rgba(50,1,'+(100+20*i)+','+(1-i/35)+')' ;
+           context.stroke();
+           }
+        }
+
+  
+
+    </script>
+</body> 
+</html>
